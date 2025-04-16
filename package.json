@@ -1,0 +1,29 @@
+{
+  "name": "pwa-template",
+  "version": "1.0.0",
+  "description": "A generic PWA template with file management and optional Dropbox sync.",
+  "main": "node-server.js",
+  "scripts": {
+    "start": "node node-server.js",
+    "start:secure": "node node-server.js --secure",
+    "start:verbose": "node node-server.js --verbose",
+    "start:secure:verbose": "node node-server.js --secure --verbose",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git"
+  },
+  "author": "Your Name or Organization",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/YOUR_REPOSITORY/issues"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/YOUR_REPOSITORY#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "pagefind": "^1.3.0"
+  }
+}
