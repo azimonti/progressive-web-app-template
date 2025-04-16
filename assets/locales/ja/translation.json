@@ -1,0 +1,107 @@
+{
+  "pageTitle": "PWA テンプレート",
+  "sidebar": {
+    "title": "ファイル",
+    "button": {
+      "import": "ディスクからファイルをインポート",
+      "add": "新しいファイルを追加",
+      "rename": "現在のファイルを名前変更",
+      "delete": "現在のファイルを削除"
+    },
+    "loadingFiles": "ファイルを読み込み中..."
+  },
+  "main": {
+    "header": {
+      "currentFile": "現在のファイル",
+      "syncStatusTitle": "同期ステータス",
+      "dropboxConnectTitle": "Dropboxに接続",
+      "helpTitle": "ヘルプ"
+    },
+    "content": {
+      "primaryColor": {
+        "title": "プライマリカラー",
+        "datepickerLabel": "日付ピッカー例:",
+        "switchLabel": "スイッチ例:",
+        "button": "プライマリ通知"
+      },
+      "complementaryColor": {
+        "title": "補色",
+        "datepickerLabel": "日付ピッカー例:",
+        "switchLabel": "スイッチ例:",
+        "button": "補色通知"
+      }
+    }
+  },
+  "modal": {
+    "conflict": {
+      "title": "同期の競合が検出されました",
+      "body": {
+        "detected": "ファイルで競合が検出されました: ",
+        "versionInfo": "Dropbox上のバージョンは、最後に保存されたローカルバージョンよりも新しいです。",
+        "question": "どちらのバージョンを保持しますか？",
+        "localTimeLabel": "ローカル最終保存日時:",
+        "dropboxTimeLabel": "Dropbox最終保存日時:"
+      },
+      "button": {
+        "keepLocal": "ローカルを保持 (Dropboxを上書き)",
+        "keepDropbox": "Dropboxを保持 (ローカルを上書き)"
+      }
+    },
+    "addFile": {
+      "title": "新しいファイルを追加",
+      "fileNameLabel": "ファイル名:",
+      "fileNamePlaceholder": "例: work.txt",
+      "fileNameHelp": ".txtで終わる必要があります（ない場合は追加されます）。",
+      "button": {
+        "add": "ファイルを追加"
+      }
+    },
+    "renameFile": {
+      "title": "ファイル名を変更",
+      "body": {
+        "renamingLabel": "名前変更中: "
+      },
+      "newFileNameLabel": "新しいファイル名:",
+      "newFileNamePlaceholder": "例: work_updated.txt",
+      "newFileNameHelp": ".txtで終わる必要があります（ない場合は追加されます）。既存のファイル名には変更できません。",
+      "button": {
+        "rename": "ファイル名を変更"
+      }
+    },
+    "deleteFile": {
+      "title": "ファイル削除の確認",
+      "body": {
+        "confirm": "ファイル \"",
+        "warning": "この操作は元に戻せません。"
+      },
+      "button": {
+        "delete": "ファイルを削除"
+      }
+    },
+    "button": {
+      "cancel": "キャンセル"
+    }
+  },
+  "helpPage": {
+    "title": "PWA テンプレート - ヘルプ",
+    "header": "ヘルプ",
+    "button": {
+      "backToApp": "アプリに戻る"
+    },
+    "content": {
+      "title": "PWA テンプレート ヘルプ",
+      "intro": "このドキュメントは、PWA テンプレート Webapp の使用方法を説明します。"
+    }
+  },
+  "switch": {
+    "on": "オン",
+    "off": "オフ"
+  },
+  "notification": {
+    "disappearingAlert": "消えるアラート通知",
+    "fixedSuccess": "固定成功通知"
+  },
+  "languageSwitcher": {
+    "header": "言語"
+  }
+}

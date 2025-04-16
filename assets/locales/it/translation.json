@@ -1,0 +1,107 @@
+{
+  "pageTitle": "Template PWA",
+  "sidebar": {
+    "title": "File",
+    "button": {
+      "import": "Importa File dal Disco",
+      "add": "Aggiungi Nuovo File",
+      "rename": "Rinomina File Corrente",
+      "delete": "Elimina File Corrente"
+    },
+    "loadingFiles": "Caricamento file..."
+  },
+  "main": {
+    "header": {
+      "currentFile": "File Corrente",
+      "syncStatusTitle": "Stato Sincronizzazione",
+      "dropboxConnectTitle": "Connetti a Dropbox",
+      "helpTitle": "Aiuto"
+    },
+    "content": {
+      "primaryColor": {
+        "title": "Colore Primario",
+        "datepickerLabel": "Esempio Datepicker:",
+        "switchLabel": "Esempio Switch:",
+        "button": "Notifica Primaria"
+      },
+      "complementaryColor": {
+        "title": "Colore Complementare",
+        "datepickerLabel": "Esempio Datepicker:",
+        "switchLabel": "Esempio Switch:",
+        "button": "Notifica Complementare"
+      }
+    }
+  },
+  "modal": {
+    "conflict": {
+      "title": "Rilevato Conflitto di Sincronizzazione",
+      "body": {
+        "detected": "È stato rilevato un conflitto per il file: ",
+        "versionInfo": "La versione su Dropbox è più recente dell'ultima versione locale salvata.",
+        "question": "Quale versione desideri conservare?",
+        "localTimeLabel": "Ultimo Salvataggio Locale:",
+        "dropboxTimeLabel": "Ultimo Salvataggio Dropbox:"
+      },
+      "button": {
+        "keepLocal": "Mantieni Locale (Sovrascrivi Dropbox)",
+        "keepDropbox": "Mantieni Dropbox (Sovrascrivi Locale)"
+      }
+    },
+    "addFile": {
+      "title": "Aggiungi Nuovo File",
+      "fileNameLabel": "Nome File:",
+      "fileNamePlaceholder": "es., lavoro.txt",
+      "fileNameHelp": "Deve terminare con .txt (verrà aggiunto se mancante).",
+      "button": {
+        "add": "Aggiungi File"
+      }
+    },
+    "renameFile": {
+      "title": "Rinomina File",
+      "body": {
+        "renamingLabel": "Rinominando: "
+      },
+      "newFileNameLabel": "Nuovo Nome File:",
+      "newFileNamePlaceholder": "es., lavoro_aggiornato.txt",
+      "newFileNameHelp": "Deve terminare con .txt (verrà aggiunto se mancante). Non è possibile rinominare con un nome file esistente.",
+      "button": {
+        "rename": "Rinomina File"
+      }
+    },
+    "deleteFile": {
+      "title": "Conferma Eliminazione File",
+      "body": {
+        "confirm": "Sei sicuro di voler eliminare il file \"",
+        "warning": "Questa azione non può essere annullata."
+      },
+      "button": {
+        "delete": "Elimina File"
+      }
+    },
+    "button": {
+      "cancel": "Annulla"
+    }
+  },
+  "helpPage": {
+    "title": "Template PWA - Aiuto",
+    "header": "Aiuto",
+    "button": {
+      "backToApp": "Torna all'App"
+    },
+    "content": {
+      "title": "Aiuto Template PWA",
+      "intro": "Questo documento spiega come utilizzare la Webapp Template PWA."
+    }
+  },
+  "switch": {
+    "on": "ACCESO",
+    "off": "SPENTO"
+  },
+  "notification": {
+    "disappearingAlert": "Notifica di avviso a scomparsa",
+    "fixedSuccess": "Notifica di successo fissa"
+  },
+  "languageSwitcher": {
+    "header": "Lingua"
+  }
+}

@@ -1,3 +1,14 @@
+/* FOUC Prevention */
+body {
+  opacity: 0; /* Initially hidden */
+  transition: opacity 0.4s ease-in-out; /* Smooth fade-in */
+}
+
+body.localized {
+  opacity: 1; /* Visible once translations are applied */
+}
+
+/* Original body styles */
 body {
   font-family: Arial, sans-serif;
   margin: 20px;
@@ -5,6 +16,10 @@ body {
 
 .container {
   margin-top: 20px;
+}
+
+.dropdown-header {
+  color: #fff;
 }
 
 .dropdown-menu {

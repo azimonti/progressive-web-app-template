@@ -11,7 +11,6 @@ import { logVerbose } from './logging.js';
 import {
   setupAddFileModalListeners,
   setupRenameFileModalListeners,
-  updateFileSelectionUI,
   setupDeleteFileConfirmListener
 } from './storage/files.js';
 

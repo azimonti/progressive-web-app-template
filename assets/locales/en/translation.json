@@ -1,0 +1,107 @@
+{
+  "pageTitle": "PWA Template",
+  "sidebar": {
+    "title": "Files",
+    "button": {
+      "import": "Import File from Disk",
+      "add": "Add New File",
+      "rename": "Rename Current File",
+      "delete": "Delete Current File"
+    },
+    "loadingFiles": "Loading files..."
+  },
+  "main": {
+    "header": {
+      "currentFile": "Current File",
+      "syncStatusTitle": "Sync Status",
+      "dropboxConnectTitle": "Connect to Dropbox",
+      "helpTitle": "Help"
+    },
+    "content": {
+      "primaryColor": {
+        "title": "Primary Color",
+        "datepickerLabel": "Example Datepicker:",
+        "switchLabel": "Example Switch:",
+        "button": "Primary Notification"
+      },
+      "complementaryColor": {
+        "title": "Complementary Color",
+        "datepickerLabel": "Example Datepicker:",
+        "switchLabel": "Example Switch:",
+        "button": "Complementary Notification"
+      }
+    }
+  },
+  "modal": {
+    "conflict": {
+      "title": "Sync Conflict Detected",
+      "body": {
+        "detected": "A conflict was detected for file: ",
+        "versionInfo": "The version on Dropbox is newer than your last saved local version.",
+        "question": "Which version would you like to keep?",
+        "localTimeLabel": "Local Last Saved:",
+        "dropboxTimeLabel": "Dropbox Last Saved:"
+      },
+      "button": {
+        "keepLocal": "Keep Local (Overwrite Dropbox)",
+        "keepDropbox": "Keep Dropbox (Overwrite Local)"
+      }
+    },
+    "addFile": {
+      "title": "Add New File",
+      "fileNameLabel": "File Name:",
+      "fileNamePlaceholder": "e.g., work.txt",
+      "fileNameHelp": "Must end with .txt (will be added if missing).",
+      "button": {
+        "add": "Add File"
+      }
+    },
+    "renameFile": {
+      "title": "Rename File",
+      "body": {
+        "renamingLabel": "Renaming: "
+      },
+      "newFileNameLabel": "New File Name:",
+      "newFileNamePlaceholder": "e.g., work_updated.txt",
+      "newFileNameHelp": "Must end with .txt (will be added if missing). Cannot rename to an existing file name.",
+      "button": {
+        "rename": "Rename File"
+      }
+    },
+    "deleteFile": {
+      "title": "Confirm File Deletion",
+      "body": {
+        "confirm": "Are you sure you want to delete the file \"",
+        "warning": "This action cannot be undone."
+      },
+      "button": {
+        "delete": "Delete File"
+      }
+    },
+    "button": {
+      "cancel": "Cancel"
+    }
+  },
+  "helpPage": {
+    "title": "PWA Template - Help",
+    "header": "Help",
+    "button": {
+      "backToApp": "Back to App"
+    },
+    "content": {
+      "title": "PWA Template Help",
+      "intro": "This document explains how to use the PWA Template Webapp."
+    }
+  },
+  "switch": {
+    "on": "ON",
+    "off": "OFF"
+  },
+  "notification": {
+    "disappearingAlert": "Disappearing alert notification",
+    "fixedSuccess": "Fixed success notification"
+  },
+  "languageSwitcher": {
+    "header": "Language"
+  }
+}

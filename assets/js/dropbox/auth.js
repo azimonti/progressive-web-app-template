@@ -3,8 +3,8 @@ import { CLIENT_ID, REDIRECT_URI, ACCESS_TOKEN_KEY } from './config.js';
 import { logVerbose, warnVerbose } from '../logging.js';
 import { updateAuthButton, updateSyncIndicator, SyncStatus } from './ui.js';
 // Imports for file discovery
-import { getKnownFiles, addKnownFile, DEFAULT_FILE_PATH } from '../storage/storage.js';
-import { initializeDropboxApi } from './api.js';
+import { getKnownFiles, addKnownFile } from '../storage/storage.js';
+import { initializeDropboxApi, getDbxInstance } from './api.js';
 import { updateFileSelectionUI } from '../storage/files.js';
 
 

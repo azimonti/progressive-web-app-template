@@ -29,7 +29,7 @@ $(document).ready(function() {
     const formattedDate = `${month}/${day}/${year}`;
     exampleDatepicker1.datepicker('update', formattedDate);
   }
-    const exampleDatepicker2 = $('#exampleDatepicker2');
+  const exampleDatepicker2 = $('#exampleDatepicker2');
   if (exampleDatepicker2.length) {
     const today = new Date();
     const month = String(today.getMonth() + 1).padStart(2, '0');

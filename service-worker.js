@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pwa-template-cache-v1'; // Updated cache name
-const CACHE_AT_ONCE = false; // Keep caching strategy
+const CACHE_NAME = 'pwa-template-cache-v1';
+const CACHE_AT_ONCE = false;
 const assetsToCache = [
   // Core HTML & Manifest
   '/index.html',
@@ -8,7 +8,7 @@ const assetsToCache = [
 
   // CSS Libraries
   '/assets/css/lib/bootstrap-5.3.2.min.css',
-  '/assets/css/lib/bootstrap.min.css.map', // Corrected map file
+  '/assets/css/lib/bootstrap-5.3.2.min.css.map',
 
   // CSS UI & App Specific
   '/assets/css/ui/datepicker.min.css',
@@ -29,20 +29,24 @@ const assetsToCache = [
   '/assets/js/lib/solid-6.7.2.min.js',
   '/assets/js/lib/jquery-3.7.1.slim.min.js',
   '/assets/js/lib/jquery-3.7.1.slim.min.js.map',
-  '/assets/js/lib/jstodotxt.min.js', // Keeping for example functionality
-  '/assets/js/lib/jstodotxt.min.js.map', // Keeping for example functionality
   '/assets/js/lib/popper-2.11.8.min.js',
   '/assets/js/lib/popper-2.11.8.min.js.map',
+  '/assets/js/lib/i18next-23.16.4.min.js',
+  '/assets/js/lib/i18next-23.16.4.min.js.map',
+  '/assets/js/lib/i18next-browser-language-detector-8.0.0.min.js',
+  '/assets/js/lib/i18next-browser-language-detector-8.0.0.min.js.map',
+  '/assets/js/lib/i18nextHttpBackend-3.0.2.min.js',
 
   // JS App Specific
   '/assets/js/cache.js',
   '/assets/js/datepicker.js',
   '/assets/js/logging.js',
   '/assets/js/notif-flash.min.js',
-  '/assets/js/notif.js', // Added
+  '/assets/js/notif.js',
   '/assets/js/switch.js',
   '/assets/js/sync-coordinator.js',
   '/assets/js/TEMPLATE.js',
+  '/assets/js/locales.js',
 
   // JS Storage Module
   '/assets/js/storage/files.js',
@@ -56,13 +60,17 @@ const assetsToCache = [
   '/assets/js/dropbox/offline.js',
   '/assets/js/dropbox/ui.js',
 
-  // Images/Icons (Keeping existing ones for now)
-  '/img/icons/todotxt.ico',
-  '/img/icons/todotxt-32x32.png',
-  '/img/icons/todotxt-180x180.png',
-  '/img/icons/todotxt-192x192.png',
-  '/img/icons/todotxt-512x512.png',
-  '/img/icons/todotxt-512x512-maskable.png'
+  // Locales
+  '/assets/locales/en/translation.json',
+  '/assets/locales/it/translation.json',
+  '/assets/locales/ja/translation.json',
+
+  '/img/icons/pwa-template.ico',
+  '/img/icons/pwa-template-32x32.png',
+  '/img/icons/pwa-template-180x180.png',
+  '/img/icons/pwa-template-192x192.png',
+  '/img/icons/pwa-template-512x512.png',
+  '/img/icons/pwa-template-512x512-maskable.png'
 ];
 
 // Function to cache assets
