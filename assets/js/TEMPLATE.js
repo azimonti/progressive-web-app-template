@@ -1,4 +1,6 @@
 /* global showNotification */
+/* NOTE: This file (TEMPLATE.js) should primarily contain imports and top-level initialization.   */
+/* Avoid adding complex function definitions directly here. Use separate modules and import them. */
 'use strict';
 
 import {
