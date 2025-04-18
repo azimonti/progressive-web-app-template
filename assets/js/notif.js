@@ -18,9 +18,9 @@ $(document).ready(function() {
 });
 
 window.showPrimaryNotification = function() {
-  showNotification(i18next.t('notification.disappearingAlert', 'Disappearing alert notification'), 'alert');
+  showNotification(i18next.t('notification.disappearingAlert', 'Disappearing alert notification'), 'alert', i18next.t('notification.disappearingAlertTitle', 'Alert'));
 };
 
 window.showComplementaryNotification = function() {
-  showNotification(i18next.t('notification.fixedSuccess', 'Fixed success notification'), 'success', null, 0);
+  showNotification(i18next.t('notification.fixedSuccess', 'Fixed success notification'), 'success', i18next.t('notification.fixedSuccessTitle', 'Success'), 0);
 };

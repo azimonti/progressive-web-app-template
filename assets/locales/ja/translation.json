@@ -99,7 +99,9 @@
   },
   "notification": {
     "disappearingAlert": "消えるアラート通知",
-    "fixedSuccess": "固定成功通知"
+    "disappearingAlertTitle": "アラート",
+    "fixedSuccess": "固定成功通知",
+    "fixedSuccessTitle": "成功"
   },
   "languageSwitcher": {
     "header": "言語"

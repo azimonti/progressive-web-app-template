@@ -99,7 +99,9 @@
   },
   "notification": {
     "disappearingAlert": "Notifica di avviso a scomparsa",
-    "fixedSuccess": "Notifica di successo fissa"
+    "disappearingAlertTitle": "Avviso",
+    "fixedSuccess": "Notifica di successo fissa",
+    "fixedSuccessTitle": "Successo"
   },
   "languageSwitcher": {
     "header": "Lingua"
