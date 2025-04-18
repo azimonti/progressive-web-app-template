@@ -7,10 +7,6 @@ function getCallerInfo() {
   try {
     const err = new Error();
     const stack = err.stack?.split('\n');
-    // Index 0: Error message
-    // Index 1: Current function (getCallerInfo)
-    // Index 2: Caller of getCallerInfo (logVerbose/warnVerbose)
-    // Index 3: Actual caller of logVerbose/warnVerbose
     if (stack && stack.length > 3) {
       const callerLine = stack[3].trim();
       // Match patterns like "...(file:///path/to/file.js:12:34)" or "... at file.js:12:34"
@@ -54,16 +50,6 @@ const VERBOSE_LOGGING_ENABLED = false; // <<< Toggle this flag for verbose logs
 export function logVerbose(...args) {
   if (VERBOSE_LOGGING_ENABLED) {
     console.log(getCallerInfo(), ...args);
-  }
-}
-
-/**
- * Logs warning messages with caller info if VERBOSE_LOGGING_ENABLED is true.
- * @param {...any} args - Arguments to pass to console.warn.
- */
-export function warnVerbose(...args) {
-  if (VERBOSE_LOGGING_ENABLED) {
-    console.warn('[Warning]', getCallerInfo(), ...args);
   }
 }
 

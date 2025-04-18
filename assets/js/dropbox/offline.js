@@ -1,5 +1,5 @@
 'use strict';
-import { logVerbose, warnVerbose } from '../logging.js';
+import { logVerbose } from '../logging.js';
 import { updateSyncIndicator, SyncStatus } from './ui.js';
 import { getAccessToken } from './auth.js'; // To check if logged in
 import { getActiveFile } from '../storage/storage.js'; // To check active file status
@@ -8,7 +8,7 @@ import { getActiveFile } from '../storage/storage.js'; // To check active file s
 // Helper to generate dynamic keys for pending status
 function getDynamicPendingKey(filePath) {
   if (!filePath) {
-    warnVerbose(`Cannot generate dynamic pending key without a file path.`);
+    console.warn(`Cannot generate dynamic pending key without a file path.`);
     return null;
   }
   const safePath = filePath.replace(/\//g, '_');

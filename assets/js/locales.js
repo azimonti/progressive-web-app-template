@@ -1,7 +1,7 @@
 /* global i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend */
 'use strict';
 
-import { logVerbose, warnVerbose } from './logging.js';
+import { logVerbose } from './logging.js';
 
 // Function to update the content based on loaded translations
 function updateContent() {
@@ -57,7 +57,7 @@ function updateContent() {
       } else if (!textNodeFound && el.querySelector(':scope > *')) {
         // If it has element children but we didn't find a text node to update, log a warning.
         // This might indicate a structure where translation needs more specific handling.
-        warnVerbose(`Could not find a primary text node to update for element with key "${actualKey}". Translation skipped to preserve child elements.`);
+        console.warn(`Could not find a primary text node to update for element with key "${actualKey}". Translation skipped to preserve child elements.`);
       }
     }
   });
@@ -76,7 +76,7 @@ function updateLanguageDisplay() {
     langDisplayElement.textContent = displayLang;
     logVerbose(`Updated language display to: ${displayLang}`);
   } else {
-    warnVerbose('Language display element (#currentLangDisplay) not found.');
+    console.warn('Language display element (#currentLangDisplay) not found.');
   }
 }
 
@@ -111,7 +111,7 @@ $(document).ready(function() {
       console.error('Error initializing i18next or loading translations:', err); // Keep console.error
       // Make body visible even if translations fail, to avoid blank page
       document.body.classList.add('localized');
-      warnVerbose('Added .localized class to body despite translation error.');
+      console.warn('Added .localized class to body despite translation error.');
     });
 
   // Update content and display when language changes
@@ -139,7 +139,7 @@ $(document).ready(function() {
     } else if (selectedLang === i18next.language) {
       logVerbose(`Selected language (${selectedLang}) is already active.`);
     } else {
-      warnVerbose('Could not determine selected language from clicked element.');
+      console.warn('Could not determine selected language from clicked element.');
     }
   });
 });

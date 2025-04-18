@@ -1,5 +1,5 @@
 'use strict';
-import { logVerbose, warnVerbose } from '../logging.js';
+import { logVerbose } from '../logging.js';
 
 let dbx = null; // Dropbox API instance
 
@@ -62,7 +62,7 @@ export function getDbxInstance() {
  */
 export async function getDropboxFileMetadata(filePath) {
   if (!dbx) {
-    warnVerbose('Dropbox API not initialized. Cannot get metadata.');
+    console.warn('Dropbox API not initialized. Cannot get metadata.');
     return null;
   }
   if (!filePath) {
@@ -105,7 +105,7 @@ export async function getDropboxFileMetadata(filePath) {
  */
 export async function downloadFileFromDropbox(filePath) {
   if (!dbx) {
-    warnVerbose('Dropbox API not initialized. Cannot download.');
+    console.warn('Dropbox API not initialized. Cannot download.');
     return { success: false, content: null };
   }
   if (!filePath) {
@@ -169,14 +169,14 @@ export async function uploadFileToDropbox(filePath, fileContent) {
   // Check online status first - Coordinator should ideally check before calling,
   // but double-check here for robustness.
   if (!navigator.onLine) {
-    warnVerbose(`Upload attempt for ${filePath} cancelled: Application is offline.`);
+    console.warn(`Upload attempt for ${filePath} cancelled: Application is offline.`);
     // Coordinator should have set pending flag already if needed.
     return false; // Indicate failure (cannot upload offline)
   }
 
   // Check if Dropbox API is initialized
   if (!dbx) {
-    warnVerbose(`Dropbox API not initialized. Cannot upload ${filePath}.`);
+    console.warn(`Dropbox API not initialized. Cannot upload ${filePath}.`);
     return false;
   }
 
@@ -220,7 +220,7 @@ export async function uploadFileToDropbox(filePath, fileContent) {
  */
 export async function renameDropboxFile(oldPath, newPath) {
   if (!dbx) {
-    warnVerbose('Dropbox API not initialized. Cannot rename file.');
+    console.warn('Dropbox API not initialized. Cannot rename file.');
     return false;
   }
   if (!oldPath || !newPath) {
@@ -275,7 +275,7 @@ export async function renameDropboxFile(oldPath, newPath) {
  */
 export async function deleteDropboxFile(filePath) {
   if (!dbx) {
-    warnVerbose('Dropbox API not initialized. Cannot delete file.');
+    console.warn('Dropbox API not initialized. Cannot delete file.');
     return false;
   }
   if (!filePath) {

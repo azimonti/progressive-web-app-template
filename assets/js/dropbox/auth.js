@@ -1,6 +1,6 @@
 'use strict';
 import { CLIENT_ID, REDIRECT_URI, ACCESS_TOKEN_KEY } from './config.js';
-import { logVerbose, warnVerbose } from '../logging.js';
+import { logVerbose } from '../logging.js';
 import { updateAuthButton, updateSyncIndicator, SyncStatus } from './ui.js';
 // Imports for file discovery
 import { getKnownFiles, addKnownFile } from '../storage/storage.js';
@@ -142,7 +142,7 @@ async function discoverDropboxFiles() {
   logVerbose('Starting Dropbox file discovery...');
   const dbx = getDbxInstance();
   if (!dbx) {
-    warnVerbose('Cannot discover files: Dropbox API not initialized.');
+    console.warn('Cannot discover files: Dropbox API not initialized.');
     return;
   }
 

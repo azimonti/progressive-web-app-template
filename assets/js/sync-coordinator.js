@@ -14,7 +14,7 @@ import {
 } from './dropbox/api.js';
 import { updateSyncIndicator, showConflictModal, SyncStatus } from './dropbox/ui.js';
 import { clearUploadPending, isUploadPending, setUploadPending } from './dropbox/offline.js';
-import { logVerbose, warnVerbose } from './logging.js';
+import { logVerbose } from './logging.js';
 
 let syncDebounceTimer = null;
 const SYNC_DEBOUNCE_DELAY = 3000; // 3 seconds delay before syncing after local change
@@ -36,12 +36,12 @@ export async function coordinateSync() {
 
   const dbx = getDbxInstance();
   if (!dbx) {
-    warnVerbose('Dropbox API not initialized. Cannot sync.');
+    console.warn('Dropbox API not initialized. Cannot sync.');
     return;
   }
 
   if (!navigator.onLine) {
-    warnVerbose('Cannot sync, application is offline.');
+    console.warn('Cannot sync, application is offline.');
     updateSyncIndicator(SyncStatus.OFFLINE, '', activeFilePath);
     return;
   }
@@ -205,7 +205,7 @@ function handleLocalDataChange(event) {
     logVerbose(`Local data changed for active file (${filePath}). Debouncing sync (${SYNC_DEBOUNCE_DELAY}ms)...`);
 
     if (!navigator.onLine) {
-      warnVerbose(`Offline: Setting upload pending flag for ${activeFilePath} due to local change.`);
+      console.warn(`Offline: Setting upload pending flag for ${activeFilePath} due to local change.`);
       setUploadPending(activeFilePath);
     }
 

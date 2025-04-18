@@ -1,6 +1,6 @@
 'use strict';
 
-import { logVerbose, warnVerbose } from '../logging.js';
+import { logVerbose } from '../logging.js';
 
 // --- Constants ---
 const KNOWN_FILES_KEY = 'knownFiles'; // Stores array of { name: string, path: string }
@@ -70,7 +70,7 @@ export function getKnownFiles() {
         return [defaultFile];
       } else {
         // If list exists but missing default, add it temporarily for the return value
-        warnVerbose("Default file path missing from known files list, adding temporarily.");
+        console.warn("Default file path missing from known files list, adding temporarily.");
         files.unshift(defaultFile);
       }
     }
@@ -92,7 +92,7 @@ export function saveKnownFiles(filesArray) {
   }
   // Ensure default file is always present
   if (!filesArray.some(file => file.path === DEFAULT_FILE_PATH)) {
-    warnVerbose("Default file path missing from saveKnownFiles input, adding it.");
+    console.warn("Default file path missing from saveKnownFiles input, adding it.");
     const defaultFileName = DEFAULT_FILE_PATH.substring(DEFAULT_FILE_PATH.lastIndexOf('/') + 1);
     filesArray.unshift({ name: defaultFileName, path: DEFAULT_FILE_PATH });
   }
@@ -106,7 +106,7 @@ export function addKnownFile(name, path) {
   }
   const files = getKnownFiles();
   if (files.some(file => file.path === path)) {
-    warnVerbose(`File with path "${path}" already exists.`);
+    console.warn(`File with path "${path}" already exists.`);
     return false;
   }
   files.push({ name, path });
@@ -122,11 +122,11 @@ export function renameKnownFile(oldPath, newName, newPath) {
   const files = getKnownFiles();
   const index = files.findIndex(file => file.path === oldPath);
   if (index === -1) {
-    warnVerbose(`Cannot find file with path "${oldPath}" to rename.`);
+    console.warn(`Cannot find file with path "${oldPath}" to rename.`);
     return false;
   }
   if (files.some(file => file.path === newPath && file.path !== oldPath)) {
-    warnVerbose(`File with new path "${newPath}" already exists.`);
+    console.warn(`File with new path "${newPath}" already exists.`);
     return false;
   }
   // Move associated data in localStorage
@@ -158,7 +158,7 @@ export function renameKnownFile(oldPath, newName, newPath) {
         logVerbose(`Moved last sync timestamp from ${oldSyncTimeKey} to ${newSyncTimeKey}`);
       }
     } else {
-      warnVerbose(`No content data found for ${oldPath} (key: ${oldContentKey}) to move during rename.`);
+      console.warn(`No content data found for ${oldPath} (key: ${oldContentKey}) to move during rename.`);
       // Ensure old keys are removed even if no data existed
       if (oldLocalModKey) localStorage.removeItem(oldLocalModKey);
       if (oldSyncTimeKey) localStorage.removeItem(oldSyncTimeKey);
@@ -185,7 +185,7 @@ export function removeKnownFile(pathToRemove) {
     return false;
   }
   if (pathToRemove === DEFAULT_FILE_PATH) {
-    warnVerbose("Cannot remove the default file.");
+    console.warn("Cannot remove the default file.");
     return false;
   }
   let files = getKnownFiles();
@@ -212,7 +212,7 @@ export function removeKnownFile(pathToRemove) {
     logVerbose(`Removed stored content and metadata for file: ${pathToRemove}`);
     return true;
   } else {
-    warnVerbose(`Could not find file with path "${pathToRemove}" to remove.`);
+    console.warn(`Could not find file with path "${pathToRemove}" to remove.`);
     return false;
   }
 }
