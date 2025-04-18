@@ -1,4 +1,3 @@
-/* global showNotification */
 'use strict';
 
 import {

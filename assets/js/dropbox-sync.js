@@ -1,3 +1,4 @@
+'use strict';
 import { initializeAuthentication } from './dropbox/auth.js';
 import { initializeOfflineHandling } from './dropbox/offline.js';
 import { initializeSyncCoordinator } from './sync-coordinator.js';

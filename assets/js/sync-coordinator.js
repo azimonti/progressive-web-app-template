@@ -1,5 +1,4 @@
 'use strict';
-
 import {
   getActiveFile,
   getLocalLastModified,

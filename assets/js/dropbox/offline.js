@@ -1,3 +1,4 @@
+'use strict';
 import { logVerbose, warnVerbose } from '../logging.js';
 import { updateSyncIndicator, SyncStatus } from './ui.js';
 import { getAccessToken } from './auth.js'; // To check if logged in

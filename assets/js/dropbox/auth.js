@@ -1,4 +1,4 @@
-/* global Dropbox */ // Inform linter about globals
+'use strict';
 import { CLIENT_ID, REDIRECT_URI, ACCESS_TOKEN_KEY } from './config.js';
 import { logVerbose, warnVerbose } from '../logging.js';
 import { updateAuthButton, updateSyncIndicator, SyncStatus } from './ui.js';

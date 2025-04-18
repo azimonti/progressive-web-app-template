@@ -1,4 +1,4 @@
-/* global showNotification */
+/* global i18next */
 'use strict';
 $(document).ready(function() {
   // Initialize all switches on page load
@@ -17,10 +17,10 @@ $(document).ready(function() {
   });
 });
 
-function showPrimaryNotification() {
-        showNotification(i18next.t('notification.disappearingAlert', 'Disappearing alert notification'), 'alert');
-}
+window.showPrimaryNotification = function() {
+  showNotification(i18next.t('notification.disappearingAlert', 'Disappearing alert notification'), 'alert');
+};
 
-function showComplementaryNotification() {
-        showNotification(i18next.t('notification.fixedSuccess', 'Fixed success notification'), 'success', null, 0);
-}
+window.showComplementaryNotification = function() {
+  showNotification(i18next.t('notification.fixedSuccess', 'Fixed success notification'), 'success', null, 0);
+};

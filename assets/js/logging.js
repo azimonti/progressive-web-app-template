@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Attempts to extract caller information (file:line) from the stack trace.
  * @returns {string} Formatted caller information like "[file.js:12]" or "[Unknown]".

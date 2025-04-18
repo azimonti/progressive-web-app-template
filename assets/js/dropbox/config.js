@@ -1,4 +1,5 @@
 // Dropbox App Configuration
+'use strict';
 export const CLIENT_ID = 'YOUR_DROPBOX_APP_KEY'; // Replace with your actual Dropbox App Key
 // Construct the full redirect URI dynamically to work across different paths
 // to be registered in the Dropbox App Console for each environment.
