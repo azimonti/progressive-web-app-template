@@ -1,4 +1,5 @@
 'use strict';
+
 document.addEventListener('DOMContentLoaded', function() {
   const versionUrl = '/data/json/version.json';
   // Fetch version file using fetch API

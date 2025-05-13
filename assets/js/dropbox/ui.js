@@ -1,7 +1,7 @@
 'use strict';
-import { logVerbose } from '../logging.js';
-// Import function to get last sync time and active file
-import { getLastSyncTime, getActiveFile } from '../storage/storage.js'; // Added imports
+
+import { logVerbose } from '../logging.js?id=fc364d';
+import { getLastSyncTime, getActiveFile } from '../storage/storage.js?id=fc364d';
 
 // --- Sync Status Indicator ---
 export const SyncStatus = {
@@ -41,18 +41,25 @@ export function updateSyncIndicator(status, message = '', filePath = null) {
   case SyncStatus.IDLE: {
     iconClass = 'fa-solid fa-check text-success';
     text = '';
-    const lastSyncTimestamp = getLastSyncTime(relevantFilePath);
-    let syncTimeStr = 'Never';
-    if (lastSyncTimestamp) {
-      try {
-        syncTimeStr = new Date(lastSyncTimestamp).toLocaleString();
-      } catch (e) {
-        console.error("Error parsing last sync timestamp:", lastSyncTimestamp, e);
-        syncTimeStr = 'Invalid Date';
+    // Check if relevantFilePath is valid before using it
+    if (relevantFilePath) {
+      const lastSyncTimestamp = getLastSyncTime(relevantFilePath);
+      let syncTimeStr = 'Never';
+      if (lastSyncTimestamp) {
+        try {
+          syncTimeStr = new Date(lastSyncTimestamp).toLocaleString();
+        } catch (e) {
+          console.error("Error parsing last sync timestamp:", lastSyncTimestamp, e);
+          syncTimeStr = 'Invalid Date';
+        }
       }
+      // Extract filename only if path is valid
+      const fileName = relevantFilePath.substring(relevantFilePath.lastIndexOf('/') + 1);
+      title = `File: ${fileName}\nLast Sync: ${syncTimeStr}`;
+    } else {
+      // Handle the case where no file is active yet
+      title = 'Sync Status: Idle (No active file)';
     }
-    const fileName = relevantFilePath.substring(relevantFilePath.lastIndexOf('/') + 1);
-    title = `File: ${fileName}\nLast Sync: ${syncTimeStr}`;
     break;
   }
   case SyncStatus.SYNCING:

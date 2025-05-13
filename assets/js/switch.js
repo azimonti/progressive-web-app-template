@@ -1,4 +1,5 @@
 'use strict';
+
 $(document).ready(function() {
   // Initialize all switches on page load
   $(".form-check-input").each(function() {

@@ -1,7 +1,7 @@
-/* global i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend */
+/* global i18nextBrowserLanguageDetector, i18nextHttpBackend */
 'use strict';
 
-import { logVerbose } from './logging.js';
+import { logVerbose } from './logging.js?id=fc364d';
 
 // Function to update the content based on loaded translations
 function updateContent() {
@@ -87,7 +87,7 @@ $(document).ready(function() {
     .init({
       defaultNS: 'translation',
       backend: {
-        loadPath: '/assets/locales/{{lng}}/{{ns}}.json' // Absolute path from root
+        loadPath: '/assets/locales/{{lng}}/{{ns}}.json?id=fc364d' // Absolute path from root
       },
       detection: {
         order: ['querystring', 'localStorage', 'navigator'],

@@ -40,13 +40,14 @@ const assetsToCache = [
   // JS App Specific
   '/assets/js/cache.js',
   '/assets/js/datepicker.js',
+  '/assets/js/file-management-ui.js',
+  '/assets/js/locales.js',
   '/assets/js/logging.js',
   '/assets/js/notif-flash.min.js',
   '/assets/js/notif.js',
   '/assets/js/switch.js',
   '/assets/js/sync-coordinator.js',
   '/assets/js/TEMPLATE.js',
-  '/assets/js/locales.js',
 
   // JS Storage Module
   '/assets/js/storage/files.js',

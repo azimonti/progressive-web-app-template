@@ -1,11 +1,10 @@
 'use strict';
 
-import { logVerbose } from '../logging.js';
+import { logVerbose } from '../logging.js?id=fc364d';
 
 // --- Constants ---
 const KNOWN_FILES_KEY = 'knownFiles'; // Stores array of { name: string, path: string }
 const ACTIVE_FILE_KEY = 'activeFile'; // Stores the path (string) of the active file
-export const DEFAULT_FILE_PATH = '/default.txt'; // Default file if none active or found
 
 // Storage key prefixes
 const CONTENT_KEY_PREFIX = 'content_';
@@ -40,7 +39,13 @@ function getLastSyncStorageKey(filePath) {
 // --- Active File Management ---
 
 export function getActiveFile() {
-  return localStorage.getItem(ACTIVE_FILE_KEY) || DEFAULT_FILE_PATH;
+  const activePath = localStorage.getItem(ACTIVE_FILE_KEY);
+  if (activePath) {
+    return activePath;
+  }
+  // If no active file is set, return the path of the first known file, or null if none exist
+  const knownFiles = getKnownFiles(); // Use the updated getKnownFiles
+  return knownFiles.length > 0 ? knownFiles[0].path : null;
 }
 
 export function setActiveFile(filePath) {
@@ -60,28 +65,13 @@ export function getKnownFiles() {
   const filesJSON = localStorage.getItem(KNOWN_FILES_KEY);
   try {
     const files = filesJSON ? JSON.parse(filesJSON) : [];
-    // Ensure default file is always present
-    if (!files.some(file => file.path === DEFAULT_FILE_PATH)) {
-      const defaultFileName = DEFAULT_FILE_PATH.substring(DEFAULT_FILE_PATH.lastIndexOf('/') + 1);
-      const defaultFile = { name: defaultFileName, path: DEFAULT_FILE_PATH };
-      if (files.length === 0) {
-        // If list is empty, add default and save
-        saveKnownFiles([defaultFile]);
-        return [defaultFile];
-      } else {
-        // If list exists but missing default, add it temporarily for the return value
-        console.warn("Default file path missing from known files list, adding temporarily.");
-        files.unshift(defaultFile);
-      }
-    }
+    // No longer ensure default file is present
     return files;
   } catch (e) {
     console.error("Error parsing known files from localStorage:", e);
-    // Provide default if parsing fails
-    const defaultFileName = DEFAULT_FILE_PATH.substring(DEFAULT_FILE_PATH.lastIndexOf('/') + 1);
-    const defaultFile = { name: defaultFileName, path: DEFAULT_FILE_PATH };
-    saveKnownFiles([defaultFile]); // Attempt to fix storage
-    return [defaultFile];
+    // Return empty array if parsing fails
+    localStorage.removeItem(KNOWN_FILES_KEY); // Clear potentially corrupted data
+    return [];
   }
 }
 
@@ -90,12 +80,7 @@ export function saveKnownFiles(filesArray) {
     console.error("Attempted to save non-array as known files:", filesArray);
     return;
   }
-  // Ensure default file is always present
-  if (!filesArray.some(file => file.path === DEFAULT_FILE_PATH)) {
-    console.warn("Default file path missing from saveKnownFiles input, adding it.");
-    const defaultFileName = DEFAULT_FILE_PATH.substring(DEFAULT_FILE_PATH.lastIndexOf('/') + 1);
-    filesArray.unshift({ name: defaultFileName, path: DEFAULT_FILE_PATH });
-  }
+  // No longer ensure default file is present
   localStorage.setItem(KNOWN_FILES_KEY, JSON.stringify(filesArray));
 }
 
@@ -184,20 +169,18 @@ export function removeKnownFile(pathToRemove) {
     console.error("Cannot remove known file without a path.");
     return false;
   }
-  if (pathToRemove === DEFAULT_FILE_PATH) {
-    console.warn("Cannot remove the default file.");
-    return false;
-  }
+  // Removed check preventing deletion of default file
   let files = getKnownFiles();
   const initialLength = files.length;
   files = files.filter(file => file.path !== pathToRemove);
 
   if (files.length < initialLength) {
     saveKnownFiles(files);
-    // If the removed file was the active one, switch to default
-    if (getActiveFile() === pathToRemove) {
-      setActiveFile(DEFAULT_FILE_PATH);
-      logVerbose(`Removed active file "${pathToRemove}", switched to default.`);
+    // If the removed file was the active one, switch to the first available file or null
+    if (localStorage.getItem(ACTIVE_FILE_KEY) === pathToRemove) { // Check localStorage directly before getActiveFile recalculates
+      const newActiveFile = files.length > 0 ? files[0].path : null;
+      setActiveFile(newActiveFile); // setActiveFile handles null
+      logVerbose(`Removed active file "${pathToRemove}", switched active file to "${newActiveFile}".`);
       // TODO: Consider triggering a reload of the UI/data for the new active file
     }
     // Remove associated data from localStorage

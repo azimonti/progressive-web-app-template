@@ -1,20 +1,10 @@
 'use strict';
-import {
-  getActiveFile,
-  getLocalLastModified,
-  getContentFromStorage,
-  saveContentToStorage,
-  setLastSyncTime
-} from './storage/storage.js';
-import {
-  getDbxInstance,
-  getDropboxFileMetadata,
-  downloadFileFromDropbox,
-  uploadFileToDropbox
-} from './dropbox/api.js';
-import { updateSyncIndicator, showConflictModal, SyncStatus } from './dropbox/ui.js';
-import { clearUploadPending, isUploadPending, setUploadPending } from './dropbox/offline.js';
-import { logVerbose } from './logging.js';
+
+import { getActiveFile, getLocalLastModified, getContentFromStorage, saveContentToStorage, setLastSyncTime } from './storage/storage.js?id=fc364d';
+import { getDbxInstance, getDropboxFileMetadata, downloadFileFromDropbox, uploadFileToDropbox } from './dropbox/api.js?id=fc364d';
+import { updateSyncIndicator, showConflictModal, SyncStatus } from './dropbox/ui.js?id=fc364d';
+import { clearUploadPending, isUploadPending, setUploadPending } from './dropbox/offline.js?id=fc364d';
+import { logVerbose } from './logging.js?id=fc364d';
 
 let syncDebounceTimer = null;
 const SYNC_DEBOUNCE_DELAY = 3000; // 3 seconds delay before syncing after local change

@@ -1,38 +1,62 @@
 'use strict';
-import { logVerbose } from '../logging.js';
 
-let dbx = null; // Dropbox API instance
+import { logVerbose } from '../logging.js?id=fc364d';
+// Import auth functions needed for refresh and logout
+import { refreshAccessToken  } from './auth.js?id=fc364d';
+
+let dbx = null; // Dropbox API instance (Dropbox class)
+let dbxAuth = null; // DropboxAuth instance (manages tokens)
 
 /**
- * Initializes the main Dropbox API object with the access token.
- * Also triggers the initial sync check.
- * @param {string | null} token - The Dropbox access token, or null to de-initialize.
+ * Initializes or updates the main Dropbox API object using the DropboxAuth instance.
+ * Also triggers the initial sync check upon successful initialization.
+ * @param {Dropbox.DropboxAuth | null} authInstance - The initialized DropboxAuth object, or null to de-initialize.
  */
-export async function initializeDropboxApi(token) {
-  if (!token) {
-    logVerbose('De-initializing Dropbox API (token is null).');
+export async function initializeDropboxApi(authInstance) {
+  dbxAuth = authInstance; // Store the auth instance
+
+  if (!authInstance) {
+    logVerbose('De-initializing Dropbox API (authInstance is null).');
     dbx = null;
-    // Status should be handled by logout function or initial state
     return;
   }
 
   if (typeof Dropbox === 'undefined') {
     console.error('Dropbox SDK not loaded, cannot initialize API.');
+    dbx = null; // Ensure dbx is null
     return;
   }
 
-  if (dbx && dbx.accessToken === token) {
-    logVerbose('Dropbox API already initialized with the same token.');
-    return; // Avoid re-initialization if token hasn't changed
+  // Check if we have an access token in the auth instance
+  const currentAccessToken = authInstance.getAccessToken();
+  if (!currentAccessToken) {
+    logVerbose('Cannot initialize Dropbox API: No access token in auth instance.');
+    dbx = null;
+    return;
   }
 
-  logVerbose('Initializing Dropbox API...');
-  try {
-    dbx = new Dropbox.Dropbox({ accessToken: token });
-    logVerbose('Dropbox API initialized successfully.');
+  // Avoid re-initialization if the underlying access token hasn't changed
+  // Note: This check might be less critical now as dbxAuth manages state,
+  // but can prevent unnecessary object creation.
+  if (dbx && dbx.auth.getAccessToken() === currentAccessToken) {
+    logVerbose('Dropbox API appears to be initialized with the same token state.');
+    return;
+  }
 
-    // Trigger initial sync check via the coordinator (needs to be called from auth/init)
-    // Dynamically import and call the coordinator's sync function
+  logVerbose('Initializing/Updating Dropbox API instance...');
+  try {
+    // Initialize Dropbox API with the DropboxAuth instance
+    // The SDK will use this auth instance to get the access token for requests
+    // and potentially handle refreshing automatically if configured,
+    // but we'll add explicit refresh handling for robustness.
+    dbx = new Dropbox.Dropbox({ auth: authInstance });
+    logVerbose('Dropbox API initialized/updated successfully.');
+
+    // Trigger initial sync check via the coordinator ONLY if dbx was newly created or updated
+    // This prevents redundant syncs if initializeDropboxApi is called multiple times
+    // without the underlying token actually changing (e.g., during refresh logic).
+    // We might need a flag or compare old/new token to be more precise.
+    // For now, let's assume if we reach here with a valid dbx, a sync check is warranted.
     // This assumes initializeDropboxApi is called *after* coordinator is initialized
     try {
       const { coordinateSync } = await import('../sync-coordinator.js');
@@ -48,12 +72,94 @@ export async function initializeDropboxApi(token) {
 }
 
 /**
- * Returns the initialized Dropbox API instance.
- * @returns {Dropbox | null} The Dropbox instance or null if not initialized.
+ * Returns the initialized Dropbox API instance (Dropbox class).
+ * @returns {Dropbox.Dropbox | null} The Dropbox instance or null if not initialized.
  */
 export function getDbxInstance() {
+  // Maybe add a check here? If !dbx but dbxAuth exists and has tokens, try init?
+  // For now, keep it simple.
   return dbx;
 }
+
+// --- API Call Wrapper with Refresh Logic ---
+
+/**
+ * Checks if an error object indicates an invalid/expired access token.
+ * @param {any} error - The error object from a Dropbox API call.
+ * @returns {boolean} True if the error is an authentication error.
+ */
+function isAuthError(error) {
+  // Based on Dropbox SDK v10+ error structure (check documentation for specifics)
+  // Errors often have a `status` (HTTP) and an `error` field (Dropbox-specific JSON or string)
+  const status = error?.status;
+  const errorData = error?.error;
+
+  // Check for HTTP 401 Unauthorized
+  if (status === 401) return true;
+
+  // Check for specific Dropbox error tags related to auth/token issues
+  if (typeof errorData === 'object' && errorData?.['.tag']?.includes('auth')) return true;
+  if (typeof errorData === 'object' && errorData?.error?.['.tag'] === 'expired_access_token') return true;
+  if (typeof errorData === 'object' && errorData?.error?.['.tag'] === 'invalid_access_token') return true;
+
+  // Check for older/string-based error summaries (less reliable)
+  const errorSummary = errorData?.error_summary || (typeof errorData === 'string' ? errorData : '');
+  if (errorSummary.includes('invalid_access_token') || errorSummary.includes('expired_access_token')) return true;
+
+  return false;
+}
+
+
+/**
+ * Wraps a Dropbox API call to handle automatic token refresh on auth errors.
+ * @template T
+ * @param {() => Promise<T>} apiCallFunction - A function that performs the Dropbox API call (e.g., () => dbx.filesListFolder({...})).
+ * @param {string} operationName - A descriptive name of the operation for logging (e.g., 'filesListFolder').
+ * @returns {Promise<T>} A promise that resolves with the result of the API call or rejects if refresh fails or the error is not auth-related.
+ */
+async function callApiWithRefresh(apiCallFunction, operationName) {
+  if (!dbx || !dbxAuth) {
+    console.error(`Cannot perform ${operationName}: Dropbox API or Auth not initialized.`);
+    // Should we attempt re-initialization here? Might be too complex.
+    // Let's assume initialization should happen beforehand.
+    throw new Error('Dropbox connection not ready.');
+  }
+
+  try {
+    // Attempt the API call
+    logVerbose(`Executing Dropbox API call: ${operationName}`);
+    return await apiCallFunction();
+  } catch (error) {
+    logVerbose(`API call ${operationName} failed initially. Error:`, error);
+
+    // Check if it's an authentication error
+    if (isAuthError(error)) {
+      logVerbose(`Authentication error detected during ${operationName}. Attempting token refresh...`);
+      try {
+        // Attempt to refresh the token using the function from auth.js
+        // refreshAccessToken should update dbxAuth and call initializeDropboxApi internally
+        await refreshAccessToken();
+        logVerbose(`Token refresh successful. Retrying API call: ${operationName}...`);
+
+        // Retry the original API call *once*
+        // The dbx instance should now be using the refreshed token via the updated dbxAuth
+        return await apiCallFunction();
+      } catch (refreshError) {
+        console.error(`Failed to refresh token or retry ${operationName} after refresh:`, refreshError);
+        // If refresh fails, refreshAccessToken should have already logged the user out.
+        // Rethrow an error indicating the operation ultimately failed.
+        throw new Error(`Dropbox operation '${operationName}' failed after token refresh attempt.`);
+      }
+    } else {
+      // If it's not an auth error, just rethrow the original error
+      logVerbose(`Error during ${operationName} was not an auth error. Rethrowing.`);
+      throw error;
+    }
+  }
+}
+
+// --- End API Call Wrapper ---
+
 
 /**
  * Fetches metadata for a specific file from Dropbox.
@@ -70,31 +176,23 @@ export async function getDropboxFileMetadata(filePath) {
     return null;
   }
 
+  // Use the wrapper function for the API call
   try {
-    logVerbose(`Fetching metadata for ${filePath} from Dropbox...`);
-    const response = await dbx.filesGetMetadata({ path: filePath });
+    const response = await callApiWithRefresh(
+      () => dbx.filesGetMetadata({ path: filePath }),
+      `filesGetMetadata(${filePath})`
+    );
     logVerbose(`Successfully fetched metadata for ${filePath}:`, response.result);
-    return response.result; // Contains server_modified, size, etc.
+    return response.result;
   } catch (error) {
-    // Handle specific errors, e.g., file not found
+    // Handle specific non-auth errors after the wrapper has done its job
     if (error?.error?.error_summary?.startsWith('path/not_found')) {
       logVerbose(`File ${filePath} not found on Dropbox. No metadata available.`);
-      return null; // Return null if file doesn't exist yet
+    } else {
+      // Log errors that persisted after potential refresh attempt
+      console.error(`Final error fetching metadata for ${filePath} after potential refresh:`, error);
     }
-    // Log the full error object for more details
-    console.error(`Full error object fetching metadata for ${filePath}:`, error);
-    const errorSummary = error?.error?.error_summary || String(error);
-    console.error(`Error fetching metadata for ${filePath} from Dropbox:`, errorSummary);
-
-    // Check for invalid access token error using the specific error tag or summary string
-    const isInvalidToken = error?.error?.['.tag'] === 'invalid_access_token' || errorSummary.includes('invalid_access_token');
-    if (isInvalidToken) {
-      console.warn(`Invalid access token detected while fetching metadata for ${filePath}. Logging out.`);
-      // Dynamically import logout function
-      const { logoutFromDropbox } = await import('./auth.js');
-      logoutFromDropbox();
-    }
-    return null; // Return null on errors
+    return null; // Return null on final errors or if not found
   }
 }
 
@@ -113,38 +211,32 @@ export async function downloadFileFromDropbox(filePath) {
     return { success: false, content: null };
   }
 
+  // Use the wrapper function for the API call
   try {
-    logVerbose(`Downloading ${filePath} from Dropbox...`);
-    const response = await dbx.filesDownload({ path: filePath });
-    logVerbose(`Successfully downloaded metadata for ${filePath}:`, response);
+    const response = await callApiWithRefresh(
+      () => dbx.filesDownload({ path: filePath }),
+      `filesDownload(${filePath})`
+    );
+    logVerbose(`Successfully received download response for ${filePath}:`, response);
 
-    // filesDownload returns metadata, the content is a blob that needs to be read
     const fileBlob = response.result.fileBlob;
     if (fileBlob) {
       const text = await fileBlob.text();
-      logVerbose(`Downloaded content for ${filePath} (${text.length} chars).`);
+      logVerbose(`Read downloaded content for ${filePath} (${text.length} chars).`);
       return { success: true, content: text };
     } else {
       console.warn(`Downloaded file blob is missing for ${filePath}.`);
       return { success: false, content: null };
     }
   } catch (error) {
-    // Handle specific errors, e.g., file not found
+    // Handle specific non-auth errors after the wrapper
     if (error?.error?.error_summary?.startsWith('path/not_found')) {
-      logVerbose(`File ${filePath} not found on Dropbox. Assuming first sync.`);
-      return { success: true, content: null }; // Success, but no content (file doesn't exist)
+      logVerbose(`File ${filePath} not found on Dropbox during download. Assuming first sync.`);
+      return { success: true, content: null }; // Treat as success, file doesn't exist yet
+    } else {
+      console.error(`Final error downloading ${filePath} after potential refresh:`, error);
+      return { success: false, content: null };
     }
-    const errorSummary = error?.error?.error_summary || String(error);
-    console.error(`Error downloading ${filePath} from Dropbox:`, errorSummary);
-
-    // Check for invalid access token error using the specific error tag or summary string
-    const isInvalidToken = error?.error?.['.tag'] === 'invalid_access_token' || errorSummary.includes('invalid_access_token');
-    if (isInvalidToken) {
-      console.warn(`Invalid access token detected while downloading ${filePath}. Logging out.`);
-      const { logoutFromDropbox } = await import('./auth.js');
-      logoutFromDropbox();
-    }
-    return { success: false, content: null };
   }
 }
 
@@ -174,39 +266,37 @@ export async function uploadFileToDropbox(filePath, fileContent) {
     return false; // Indicate failure (cannot upload offline)
   }
 
-  // Check if Dropbox API is initialized
-  if (!dbx) {
-    console.warn(`Dropbox API not initialized. Cannot upload ${filePath}.`);
+  // Check online status first
+  if (!navigator.onLine) {
+    console.warn(`Upload attempt for ${filePath} cancelled: Application is offline.`);
     return false;
   }
 
-  logVerbose(`Attempting to upload content to ${filePath} (Online)...`);
+  // Check if API is ready (via wrapper check)
+  logVerbose(`Attempting to upload content to ${filePath} via wrapper...`);
 
+  // Use the wrapper function for the API call
   try {
-    // Conflict checks are handled by the coordinator before calling this.
     const contentSize = typeof fileContent === 'string' ? fileContent.length : fileContent.size;
-    logVerbose(`Uploading content (${contentSize} ${typeof fileContent === 'string' ? 'chars' : 'bytes'}) to ${filePath} on Dropbox...`);
-    const response = await dbx.filesUpload({
-      path: filePath,
-      contents: fileContent,
-      mode: 'overwrite',
-      autorename: false,
-      mute: true
-    });
+    logVerbose(`Uploading content (${contentSize} ${typeof fileContent === 'string' ? 'chars' : 'bytes'}) to ${filePath}...`);
+
+    const response = await callApiWithRefresh(
+      () => dbx.filesUpload({
+        path: filePath,
+        contents: fileContent,
+        mode: 'overwrite', // Conflict checks assumed done by coordinator
+        autorename: false,
+        mute: true // Don't trigger desktop notifications from Dropbox
+      }),
+      `filesUpload(${filePath})`
+    );
+
     logVerbose(`Successfully uploaded content to ${filePath} on Dropbox:`, response);
     return true; // Indicate success
 
   } catch (error) {
-    console.error(`Error during upload API call for ${filePath}:`, error);
-
-    // Check for invalid access token error
-    const errorSummary = error?.error?.error_summary || String(error);
-    const isInvalidToken = error?.error?.['.tag'] === 'invalid_access_token' || errorSummary.includes('invalid_access_token');
-    if (isInvalidToken) {
-      console.warn(`Invalid access token detected during upload for ${filePath}. Logging out.`);
-      const { logoutFromDropbox } = await import('./auth.js');
-      logoutFromDropbox();
-    }
+    // Log final errors after potential refresh attempt
+    console.error(`Final error uploading ${filePath} after potential refresh:`, error);
     return false; // Indicate failure
   }
 }
@@ -232,38 +322,34 @@ export async function renameDropboxFile(oldPath, newPath) {
     return false; // No action taken
   }
 
-  logVerbose(`Attempting to rename Dropbox file from "${oldPath}" to "${newPath}"...`);
+  logVerbose(`Attempting to rename Dropbox file from "${oldPath}" to "${newPath}" via wrapper...`);
+
+  // Use the wrapper function for the API call
   try {
-    // Use filesMoveV2 for renaming
-    const response = await dbx.filesMoveV2({
-      from_path: oldPath,
-      to_path: newPath,
-      allow_shared_folder: false, // Adjust as needed
-      autorename: false, // Do not autorename if target exists
-      allow_ownership_transfer: false
-    });
+    const response = await callApiWithRefresh(
+      () => dbx.filesMoveV2({
+        from_path: oldPath,
+        to_path: newPath,
+        allow_shared_folder: false,
+        autorename: false, // Fail if target exists
+        allow_ownership_transfer: false
+      }),
+      `filesMoveV2(${oldPath} -> ${newPath})`
+    );
     logVerbose(`Successfully renamed file on Dropbox:`, response.result);
     return true;
   } catch (error) {
-    console.error(`Error renaming file from "${oldPath}" to "${newPath}" on Dropbox:`, error?.error?.error_summary || error);
-    // Provide more specific feedback if possible
+    // Handle specific non-auth errors after the wrapper
     let userMessage = `Failed to rename file on Dropbox.`;
     if (error?.error?.error_summary?.includes('to/conflict/file')) {
       userMessage = `Failed to rename: A file already exists at "${newPath}".`;
     } else if (error?.error?.error_summary?.includes('from_lookup/not_found')) {
       userMessage = `Failed to rename: The original file "${oldPath}" was not found.`;
+    } else {
+      userMessage = `Failed to rename file on Dropbox: ${error?.error?.error_summary || error.message || error}`;
     }
-    // Check for invalid access token error using the specific error tag or summary string
-    const errorSummary = error?.error?.error_summary || String(error);
-    const isInvalidToken = error?.error?.['.tag'] === 'invalid_access_token' || errorSummary.includes('invalid_access_token');
-    if (isInvalidToken) {
-      console.warn(`Invalid access token detected during rename from ${oldPath} to ${newPath}. Logging out.`);
-      const { logoutFromDropbox } = await import('./auth.js');
-      logoutFromDropbox();
-      userMessage = 'Dropbox connection error: Your session has expired. Please reconnect.';
-    }
-
-    console.error(userMessage);
+    console.error(`Final error renaming file from "${oldPath}" to "${newPath}" after potential refresh: ${userMessage}`, error);
+    // Potentially show userMessage in UI?
     return false;
   }
 }
@@ -283,31 +369,28 @@ export async function deleteDropboxFile(filePath) {
     return false;
   }
 
-  logVerbose(`Attempting to delete Dropbox file: "${filePath}"...`);
+  logVerbose(`Attempting to delete Dropbox file: "${filePath}" via wrapper...`);
+
+  // Use the wrapper function for the API call
   try {
-    const response = await dbx.filesDeleteV2({ path: filePath });
+    const response = await callApiWithRefresh(
+      () => dbx.filesDeleteV2({ path: filePath }),
+      `filesDeleteV2(${filePath})`
+    );
     logVerbose(`Successfully deleted file on Dropbox:`, response.result);
     return true;
   } catch (error) {
-    console.error(`Error deleting file "${filePath}" on Dropbox:`, error?.error?.error_summary || error);
-    // Provide more specific feedback if possible
+    // Handle specific non-auth errors after the wrapper
     let userMessage = `Failed to delete file on Dropbox.`;
     if (error?.error?.error_summary?.includes('path_lookup/not_found')) {
-      // If file not found, maybe treat as success for deletion? Or specific error?
-      // For now, let's treat not found as a failure to delete what was intended.
-      userMessage = `Failed to delete: The file "${filePath}" was not found on Dropbox.`;
+      // If file not found, maybe treat as success for deletion intent?
+      logVerbose(`File "${filePath}" not found during delete attempt. Treating as success.`);
+      return true; // File is already gone, goal achieved.
+    } else {
+      userMessage = `Failed to delete file on Dropbox: ${error?.error?.error_summary || error.message || error}`;
     }
-    // Check for invalid access token error using the specific error tag or summary string
-    const errorSummary = error?.error?.error_summary || String(error);
-    const isInvalidToken = error?.error?.['.tag'] === 'invalid_access_token' || errorSummary.includes('invalid_access_token');
-    if (isInvalidToken) {
-      console.warn(`Invalid access token detected during delete for ${filePath}. Logging out.`);
-      const { logoutFromDropbox } = await import('./auth.js');
-      logoutFromDropbox();
-      userMessage = 'Dropbox connection error: Your session has expired. Please reconnect.';
-    }
-
-    console.error(userMessage);
+    console.error(`Final error deleting file "${filePath}" after potential refresh: ${userMessage}`, error);
+    // Potentially show userMessage in UI?
     return false;
   }
 }

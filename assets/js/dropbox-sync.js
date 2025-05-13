@@ -1,8 +1,9 @@
 'use strict';
-import { initializeAuthentication } from './dropbox/auth.js';
-import { initializeOfflineHandling } from './dropbox/offline.js';
-import { initializeSyncCoordinator } from './sync-coordinator.js';
-import { logVerbose } from './logging.js';
+
+import { initializeAuthentication } from './dropbox/auth.js?id=fc364d';
+import { initializeOfflineHandling } from './dropbox/offline.js?id=fc364d';
+import { initializeSyncCoordinator } from './sync-coordinator.js?id=fc364d';
+import { logVerbose } from './logging.js?id=fc364d';
 
 /**
  * Initializes the complete Dropbox sync system.

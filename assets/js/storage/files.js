@@ -1,15 +1,7 @@
 'use strict';
 
-import {
-  getKnownFiles,
-  getActiveFile,
-  setActiveFile,
-  addKnownFile,
-  renameKnownFile,
-  removeKnownFile,
-  DEFAULT_FILE_PATH,
-} from './storage.js';
-import { logVerbose } from '../logging.js';
+import { getKnownFiles, getActiveFile, setActiveFile, addKnownFile, renameKnownFile, removeKnownFile } from './storage.js?id=fc364d';
+import { logVerbose } from '../logging.js?id=fc364d';
 
 // DOM Elements
 const fileListSidebar = $('#fileListSidebar');
@@ -22,7 +14,6 @@ const newRenameFileNameInput = $('#newRenameFileNameInput');
 // Modal instances
 let addFileModalInstance = null;
 let renameFileModalInstance = null;
-
 
 // Setup listeners for the Add File modal
 export function setupAddFileModalListeners() {
@@ -40,9 +31,10 @@ export function setupAddFileModalListeners() {
       showNotification("Error: File name cannot be empty.", 'alert');
       return;
     }
-    if (!cleanName.toLowerCase().endsWith('.txt')) {
-      cleanName += '.txt';
-      logVerbose(`Appended .txt extension: ${cleanName}`);
+    // Ensure file ends with .pgn
+    if (!cleanName.toLowerCase().endsWith('.pgn')) {
+      cleanName += '.pgn';
+      logVerbose(`Appended .pgn extension: ${cleanName}`);
     }
     const newFilePath = cleanName.startsWith('/') ? cleanName : `/${cleanName}`;
     const knownFiles = getKnownFiles();
@@ -72,7 +64,6 @@ export function setupAddFileModalListeners() {
       addKnownFile(cleanName, newFilePath);
       setActiveFile(newFilePath);
       updateFileSelectionUI();
-      // NOTE: Need a mechanism here or elsewhere to load/display the content of the new active file.
       logVerbose(`File "${cleanName}" created successfully locally and on Dropbox.`);
       showNotification(`File "${cleanName}" created successfully.`, 'success');
     } catch (error) {
@@ -90,10 +81,11 @@ export function setupRenameFileModalListeners() {
     event.preventDefault();
     const newFileName = newRenameFileNameInput.val();
     const oldFilePath = getActiveFile();
-    const defaultFileName = DEFAULT_FILE_PATH.substring(DEFAULT_FILE_PATH.lastIndexOf('/') + 1);
 
-    if (oldFilePath === DEFAULT_FILE_PATH) {
-      showNotification(`Error: The default file (${defaultFileName}) cannot be renamed.`, 'alert');
+    // Removed check preventing renaming of default file
+
+    if (!oldFilePath) {
+      showNotification("Error: No active file selected to rename.", 'alert');
       const renameModalElement = document.getElementById('renameFileModal');
       if (renameModalElement) {
         renameFileModalInstance = bootstrap.Modal.getInstance(renameModalElement);
@@ -111,6 +103,7 @@ export function setupRenameFileModalListeners() {
       showNotification("Error: New file name cannot be empty.", 'alert');
       return;
     }
+    // Ensure file ends with .txt
     if (!cleanNewName.toLowerCase().endsWith('.txt')) {
       cleanNewName += '.txt';
       logVerbose(`Appended .txt extension: ${cleanNewName}`);
@@ -188,9 +181,8 @@ export function setupRenameFileModalListeners() {
 export function updateFileSelectionUI() {
   logVerbose("Updating file selection UI...");
   const knownFiles = getKnownFiles();
-  const activeFilePath = getActiveFile();
-  const defaultFileName = DEFAULT_FILE_PATH.substring(DEFAULT_FILE_PATH.lastIndexOf('/') + 1);
-  let activeFileName = defaultFileName; // Use default name initially
+  const activeFilePath = getActiveFile(); // Can be null if no files exist or none selected
+  let activeFileName = "No file selected"; // Default header text
 
   fileListSidebar.empty();
 
@@ -199,14 +191,13 @@ export function updateFileSelectionUI() {
     const link = $('<a class="nav-link" href="#"></a>')
       .text(file.name)
       .data('path', file.path)
-      .click(function(e) {
+      .click(async function(e) { // Make this function async
         e.preventDefault();
         const selectedPath = $(this).data('path');
         if (selectedPath !== getActiveFile()) {
           logVerbose(`Switching active file to: ${selectedPath}`);
           setActiveFile(selectedPath);
-          // NOTE: Need a mechanism here or elsewhere to load/display the content of the new active file.
-          updateFileSelectionUI();
+          updateFileSelectionUI(); // Update sidebar highlighting first
           // Optionally trigger sync for the new file
         }
       });
@@ -273,11 +264,10 @@ export function setupDeleteFileConfirmListener() {
       logVerbose(`Proceeding with local removal for ${filePathToDelete}`);
       removeKnownFile(filePathToDelete); // Handles switching active file if needed
 
-      // 3. Update UI
+      // 3. Update UI (sidebar first)
       updateFileSelectionUI();
-      // NOTE: Need a mechanism here or elsewhere to load/display the content of the new active file.
 
-      // 4. Show notification
+      // 5. Show notification
       showNotification(`File "${fileNameToDelete}" removed locally.`, 'success');
       if (dropboxDeleteAttempted && !dropboxDeleteSuccess) {
         showNotification(`Note: Could not remove "${fileNameToDelete}" from Dropbox.`, 'warning');

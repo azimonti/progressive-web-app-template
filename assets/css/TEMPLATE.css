@@ -1,17 +1,12 @@
-/* FOUC Prevention */
 body {
   opacity: 0; /* Initially hidden */
   transition: opacity 0.4s ease-in-out; /* Smooth fade-in */
+  font-family: Arial, sans-serif;
+  margin: 20px;
 }
 
 body.localized {
   opacity: 1; /* Visible once translations are applied */
-}
-
-/* Original body styles */
-body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
 }
 
 .container {
@@ -77,9 +72,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0rem;
   border: 1px solid rgb(0 0 0 / 12.5%);
   margin-bottom: -1px;
+  padding:var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
 }
 
 .list-group-item:first-child {
@@ -149,6 +144,7 @@ body {
 
 .btn-primary {
   font-weight: 800;
+
   --bs-btn-color:#FFF;
   --bs-btn-padding-y:1rem;
   --bs-btn-bg:#0083B3;
@@ -168,6 +164,7 @@ body {
 
 .btn-complementary {
   font-weight: 800;
+
   --bs-btn-color: #FFF;
   --bs-btn-padding-y: 1rem;
   --bs-btn-bg: #FF4030;
@@ -195,17 +192,9 @@ body {
   --bs-nav-link-hover-color: #006F98;
 }
 
-.list-group-item {
-  padding:var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
-}
-
 .form-switch .form-check-input {
   width:42px;
   height:24px
-}
-
-.list-group-item {
-  padding:var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
 }
 
 /* Dropbox Button Styling */
@@ -245,16 +234,16 @@ body {
 }
 
 /* File list specific styles */
-#fileListSidebar .nav-link {
+.file-list-sidebar .nav-link {
   cursor: pointer;
   padding: 0.5rem 1rem; /* Adjust padding */
 }
 
-#fileListSidebar .nav-link.active {
+.file-list-sidebar .nav-link.active {
   background-color: #e9ecef; /* Highlight active file */
   color: #000;
 }
 
-#fileListSidebar .nav-link:hover {
+.file-list-sidebar .nav-link:hover {
   background-color: #f8f9fa; /* Hover effect */
 }
