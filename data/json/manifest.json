@@ -3,6 +3,7 @@
     "short_name": "PWA Template",
     "description": "A Progressive Web Application template with file management and optional Dropbox sync.",
     "start_url": "/",
+    "scope": "/",
     "display": "standalone",
     "background_color": "#F8F8F2",
     "theme_color": "#0083B3",
